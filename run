@@ -1,0 +1,21 @@
+#! /usr/bin/env bash
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"
+[[ -s "/usr/lib/rvm/scripts/rvm" ]] && . "/usr/lib/rvm/scripts/rvm"
+
+rvm --version
+rc=$?
+if [[ $rc == 0 ]] ; then
+
+  rvm rvmrc trust
+  cd lib; cd .. # hack to load RVMRC
+fi
+
+export BUNDLE_GEMFILE=$(pwd)/Gemfile
+
+HAS_BUNDLER=`gem list --local |grep bundler`
+if [ "$HAS_BUNDLER" = "" ]; then
+  gem install bundler --no-rdoc --no-ri
+fi
+
+bundle check > /dev/null || bundle install
+bundle exec rake -f Rakefile $@ 2> >(grep -v 'SAFE levels are not supported in JRuby' >&2)
