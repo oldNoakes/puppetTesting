@@ -36,7 +36,12 @@ def compile_catalog(nodename)
   Puppet.settings.handlearg("--modulepath", @module_path)
 
   node = Puppet::Node.new(nodename)
-  node.merge 'architecture' => 'x86_64', 'ipaddress' => '127.0.0.1', 'hostname' => nodename, 'fqdn' => "#{nodename}.localdomain", 'operatingsystem' => 'redhat'
+  node.merge 'architecture' => 'x86_64',
+             'ipaddress' => '127.0.0.1',
+             'hostname' => nodename,
+             'fqdn' => "#{nodename}.localdomain",
+             "operatingsystem" => "redhat",
+             "disable_asserts" => "true"
   Puppet::Resource::Catalog.indirection.find(node.name, :use_node => node)
 end
 
