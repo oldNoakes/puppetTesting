@@ -21,7 +21,6 @@ task :verify_nodes, [:manifest_path, :module_path, :nodename_filter] do |task, a
       compile_catalog(nodename)
       puts "[ok]".green
     rescue => error
-      #puts "#{nodename} failed to compile due to: #{error.message}"
       puts "[FAILED] - #{error.message}".red
       verify_successful = false
     end

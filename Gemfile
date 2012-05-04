@@ -3,8 +3,4 @@ source "http://gems.github.com"
 
 gem "puppet", "2.7.11"
 gem "colored", "1.2"
-gem "nokogiri", "1.4.4"
 gem "rake", "0.9.2"
-gem "rspec", "2.6.0"
-gem "vagrant", "0.8.7"
-gem "timecop", "0.3.5"
