@@ -13,19 +13,24 @@ task :verify_nodes, [:manifest_path, :module_path, :nodename_filter] do |task, a
   @nodename_filter = args[:nodename_filter]
 
   nodes = collect_puppet_nodes
+  failed_nodes = {}
   puts "Found: #{nodes.length} nodes to evaluate".cyan
-  verify_successful = true
-  collect_puppet_nodes.each do |nodename|
+  nodes.each do |nodename|
     print "Verifying node #{nodename}: ".cyan
     begin
       compile_catalog(nodename)
       puts "[ok]".green
     rescue => error
       puts "[FAILED] - #{error.message}".red
-      verify_successful = false
+      failed_nodes[nodename] = error.message
     end
   end
-  raise "[Compilation Failure] - Check output for details" unless verify_successful
+  puts "The following nodes failed to compile => #{print_hash failed_nodes}".red unless failed_nodes.empty?
+  raise "[Compilation Failure] at least one node failed to compile" unless failed_nodes.empty?
+end
+
+def print_hash nodes
+  nodes.inject("\n") { |printed_hash, (key,value)| printed_hash << "\t #{key} => #{value} \n" }
 end
 
 def compile_catalog(nodename)
@@ -36,12 +41,12 @@ def compile_catalog(nodename)
   Puppet.settings.handlearg("--modulepath", @module_path)
 
   node = Puppet::Node.new(nodename)
-  node.merge 'architecture' => 'x86_64',
+  node.merge('architecture' => 'x86_64',
              'ipaddress' => '127.0.0.1',
              'hostname' => nodename,
              'fqdn' => "#{nodename}.localdomain",
-             "operatingsystem" => "redhat",
-             "disable_asserts" => "true"
+             'operatingsystem' => 'redhat',
+             'disable_asserts' => 'true')
   Puppet::Resource::Catalog.indirection.find(node.name, :use_node => node)
 end
 
