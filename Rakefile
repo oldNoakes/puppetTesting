@@ -55,6 +55,5 @@ def collect_puppet_nodes
   Puppet.settings.handlearg("--manifest", @manifest_path)
   parser = Puppet::Parser::Parser.new("environment")
   nodes = parser.environment.known_resource_types.nodes.keys
-  nodes.select { |node| node =~ /#{@nodename_filter}/ } unless @nodename_filter.nil?
+  nodes.select { |node| node =~ /#{@nodename_filter}/ }
 end
-
