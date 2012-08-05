@@ -46,8 +46,9 @@ def compile_catalog(nodename)
              'hostname' => nodename,
              'fqdn' => "#{nodename}.localdomain",
              'operatingsystem' => 'redhat',
+             'local_run' => 'true',
              'disable_asserts' => 'true')
-  Puppet::Resource::Catalog.indirection.find(node.name, :use_node => node)
+  Puppet::Parser::Compiler.compile(node)
 end
 
 def collect_puppet_nodes
