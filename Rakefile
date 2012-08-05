@@ -8,11 +8,8 @@ task :verify_nodes, [:manifest_path, :module_path, :nodename_filter] do |task, a
   fail "manifest_path must be specified" unless args[:manifest_path]
   fail "module_path must be specified" unless args[:module_path]
 
-  @manifest_path = args[:manifest_path]
-  @module_path = args[:module_path]
-  @nodename_filter = args[:nodename_filter] || ".*"
-
-  nodes = collect_puppet_nodes
+  setup_puppet args[:manifest_path], args[:module_path]
+  nodes = collect_puppet_nodes args[:nodename_filter]
   failed_nodes = {}
   puts "Found: #{nodes.length} nodes to evaluate".cyan
   nodes.each do |nodename|
@@ -34,12 +31,6 @@ def print_hash nodes
 end
 
 def compile_catalog(nodename)
-  Puppet.settings.handlearg("--config", ".")
-  Puppet.parse_config
-
-  Puppet.settings.handlearg("--manifest", @manifest_path)
-  Puppet.settings.handlearg("--modulepath", @module_path)
-
   node = Puppet::Node.new(nodename)
   node.merge('architecture' => 'x86_64',
              'ipaddress' => '127.0.0.1',
@@ -51,9 +42,15 @@ def compile_catalog(nodename)
   Puppet::Parser::Compiler.compile(node)
 end
 
-def collect_puppet_nodes
-  Puppet.settings.handlearg("--manifest", @manifest_path)
+def collect_puppet_nodes(filter = ".*")
   parser = Puppet::Parser::Parser.new("environment")
   nodes = parser.environment.known_resource_types.nodes.keys
-  nodes.select { |node| node =~ /#{@nodename_filter}/ }
+  nodes.select { |node| node =~ /#{filter}/ }
+end
+
+def setup_puppet manifest_path, module_path
+  Puppet.settings.handlearg("--config", ".")
+  Puppet.settings.handlearg("--manifest", manifest_path)
+  Puppet.settings.handlearg("--modulepath", module_path)
+  Puppet.parse_config
 end
