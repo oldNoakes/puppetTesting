@@ -7,10 +7,10 @@ desc "verifies correctness of node syntax"
 task :verify_nodes, [:manifest_path, :module_path, :nodename_filter] do |task, args|
   fail "manifest_path must be specified" unless args[:manifest_path]
   fail "module_path must be specified" unless args[:module_path]
- 
+
   @manifest_path = args[:manifest_path]
   @module_path = args[:module_path]
-  @nodename_filter = args[:nodename_filter]
+  @nodename_filter = args[:nodename_filter] || ".*"
 
   nodes = collect_puppet_nodes
   failed_nodes = {}
